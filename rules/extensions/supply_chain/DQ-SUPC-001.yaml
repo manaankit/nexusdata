@@ -1,0 +1,28 @@
+$schema: ../../../schemas/rule-schema.json
+rule_id: DQ-SUPC-001
+legacy_rule_id: DQ-SC-001
+name: SKUUniqueness
+dimension: Uniqueness
+description: SKU identifiers must be globally unique across the product master.
+parameters:
+  extends: DQ-UNIQ-001
+  column: sku
+applicability:
+  semantic_types:
+    - Identifier
+    - SKU
+  data_types:
+    - string
+  column_patterns:
+    - '.*sku.*'
+severity: Fail
+threshold: 100
+implementations:
+  sql: |
+    SELECT {column}
+    FROM source
+    GROUP BY {column}
+    HAVING COUNT(*) > 1
+  pandas: df['{column}'].duplicated(keep=False)
+  great_expectations: expect_column_values_to_be_unique
+example_usage: Fail if any SKU appears more than once globally.

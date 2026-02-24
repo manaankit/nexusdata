@@ -1,0 +1,7 @@
+$schema: ../../schemas/semantic-types-schema.json
+type_name: DiagnosisCode
+description: Clinical diagnosis code that must map to an approved ICD taxonomy.
+default_rules:
+  - DQ-HEAL-001
+parameters:
+  system: ICD-10

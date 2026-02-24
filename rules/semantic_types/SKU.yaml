@@ -1,0 +1,8 @@
+$schema: ../../schemas/semantic-types-schema.json
+type_name: SKU
+description: Product identifier used across procurement, inventory, and fulfillment systems.
+default_rules:
+  - DQ-SUPC-001
+  - DQ-SUPC-003
+parameters:
+  normalize_case: upper

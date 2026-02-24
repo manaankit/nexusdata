@@ -1,0 +1,28 @@
+$schema: ../../../schemas/rule-schema.json
+rule_id: DQ-HEAL-003
+legacy_rule_id: DQ-HC-003
+name: PHICompleteness
+dimension: Completeness
+description: Required PHI identifiers must be present for billing and claims compliance.
+parameters:
+  extends: DQ-COMP-001
+  required_columns:
+    - ssn
+    - mrn
+    - patient_id
+applicability:
+  semantic_types:
+    - PHI
+  data_types:
+    - string
+  column_patterns:
+    - '.*ssn.*'
+    - '.*mrn.*'
+    - '.*patient.*id.*'
+severity: Fail
+threshold: 100
+implementations:
+  sql: ssn IS NULL OR mrn IS NULL OR patient_id IS NULL
+  pandas: df[['ssn', 'mrn', 'patient_id']].isna().any(axis=1)
+  great_expectations: expect_multicolumn_values_to_not_be_null
+example_usage: Fail claims data if required PHI fields are missing.

@@ -1,0 +1,26 @@
+rules:
+  - rule_id: DQ-HC-001
+    name: ICDCodeValidity
+    dimension: Validity
+    description: Diagnosis codes in ICD-10/11 list.
+    extends: DQ-VAL-003
+    parameters:
+      allowed_values: "Reference from CMS API or table"
+    applicability:
+      semantic_types: ["DiagnosisCode"]
+
+  - rule_id: DQ-HC-002
+    name: PatientAgeConsistency
+    dimension: Consistency
+    description: Age derived from DOB matches recorded age (±1 year).
+    extends: DQ-CONS-001
+    parameters:
+      dob_col: ""
+      age_col: ""
+
+  - rule_id: DQ-HC-003
+    name: PHICompleteness
+    dimension: Completeness
+    description: PII fields (SSN, MRN) not null for billing.
+    extends: DQ-COMP-001
+    severity: Fail

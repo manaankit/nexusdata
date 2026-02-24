@@ -1,0 +1,26 @@
+$schema: ../../../schemas/rule-schema.json
+rule_id: DQ-SUPC-003
+legacy_rule_id: DQ-SC-003
+name: QuantityNonNegative
+dimension: Validity
+description: Inventory and shipment quantities must be non-negative.
+parameters:
+  extends: DQ-VAL-004
+  column: quantity
+  min: 0
+applicability:
+  semantic_types:
+    - Quantity
+  data_types:
+    - integer
+    - numeric
+  column_patterns:
+    - '.*qty.*'
+    - '.*quantity.*'
+severity: Fail
+threshold: 100
+implementations:
+  sql: {column} < {min}
+  pandas: df['{column}'] < {min}
+  great_expectations: expect_column_values_to_be_between with min_value=0
+example_usage: Fail when negative inventory counts are detected.

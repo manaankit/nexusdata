@@ -1,0 +1,219 @@
+- rule_id: DQ-COMP-001
+  name: NotNullCheck
+  dimension: Completeness
+  description: Ensures mandatory column values are not null or blank.
+  parameters:
+    allow_blank: false
+  applicability:
+    semantic_types:
+      - Identifier
+      - KeyField
+    data_types:
+      - string
+      - integer
+      - numeric
+  severity: Fail
+  threshold: 100
+  implementations:
+    sql: '{column} IS NULL OR TRIM(CAST({column} AS TEXT)) = '''''
+    pandas: df['{column}'].isna() | (df['{column}'].astype(str).str.strip() == '')
+    great_expectations: expect_column_values_to_not_be_null
+  example_usage: customer_id must always be populated.
+
+- rule_id: DQ-VALD-002
+  name: RegexPattern
+  dimension: Validity
+  description: Validates values against a configured regular expression pattern.
+  parameters:
+    regex: ''
+  applicability:
+    semantic_types:
+      - EmailAddress
+      - PhoneNumber
+      - PostalCode
+    data_types:
+      - string
+  severity: Warn
+  threshold: 99.5
+  implementations:
+    sql: '{column} !~ {regex}'
+    pandas: ~df['{column}'].astype(str).str.match(regex, na=False)
+    great_expectations: expect_column_values_to_match_regex
+  example_usage: Validate email formatting in customer master.
+
+- rule_id: DQ-VALD-003
+  name: DomainListCheck
+  dimension: Validity
+  description: Ensures values exist in a predefined allowable value set.
+  parameters:
+    allowed_values: []
+  applicability:
+    semantic_types:
+      - CountryCode
+      - CurrencyCode
+    data_types:
+      - string
+  severity: Fail
+  threshold: 100
+  implementations:
+    sql: '{column} NOT IN ({allowed_values})'
+    pandas: ~df['{column}'].isin(allowed_values)
+    great_expectations: expect_column_values_to_be_in_set
+  example_usage: country_code must be an ISO-approved code.
+
+- rule_id: DQ-VALD-004
+  name: NumericRange
+  dimension: Validity
+  description: Ensures numeric values fall within configured min/max bounds.
+  parameters:
+    min: null
+    max: null
+  applicability:
+    semantic_types:
+      - MonetaryAmount
+      - Quantity
+      - PersonAge
+    data_types:
+      - integer
+      - numeric
+      - float
+  severity: Fail
+  threshold: 100
+  implementations:
+    sql: '{column} < {min} OR {column} > {max}'
+    pandas: (df['{column}'] < min_value) | (df['{column}'] > max_value)
+    great_expectations: expect_column_values_to_be_between
+  example_usage: Age must be in range 18 to 120.
+
+- rule_id: DQ-UNIQ-001
+  name: ColumnUnique
+  dimension: Uniqueness
+  description: Ensures a single column is unique across all rows.
+  parameters: {}
+  applicability:
+    semantic_types:
+      - Identifier
+    data_types:
+      - string
+      - integer
+  severity: Fail
+  threshold: 100
+  implementations:
+    sql: |
+      SELECT {column}
+      FROM source
+      GROUP BY {column}
+      HAVING COUNT(*) > 1
+    pandas: df['{column}'].duplicated(keep=False)
+    great_expectations: expect_column_values_to_be_unique
+  example_usage: customer_id must be unique.
+
+- rule_id: DQ-UNIQ-002
+  name: CompositeUnique
+  dimension: Uniqueness
+  description: Ensures the combination of multiple columns is unique.
+  parameters:
+    columns: []
+  applicability:
+    semantic_types:
+      - CompositeKey
+    data_types:
+      - string
+      - integer
+      - numeric
+  severity: Fail
+  threshold: 100
+  implementations:
+    sql: |
+      SELECT {columns}
+      FROM source
+      GROUP BY {columns}
+      HAVING COUNT(*) > 1
+    pandas: df.duplicated(subset=columns, keep=False)
+    great_expectations: expect_compound_columns_to_be_unique
+  example_usage: order_id + line_item should be unique.
+
+- rule_id: DQ-CONS-001
+  name: CrossFieldConditional
+  dimension: Consistency
+  description: Applies conditional consistency logic between related fields.
+  parameters:
+    condition: ''
+    required_column: ''
+  applicability:
+    semantic_types:
+      - LifecycleStatus
+    data_types:
+      - string
+      - date
+  severity: Warn
+  threshold: 99
+  implementations:
+    sql: CASE WHEN {condition} AND {required_column} IS NULL THEN 1 ELSE 0 END = 1
+    pandas: df.eval(condition) & df[required_column].isna()
+    great_expectations: expect_column_values_to_not_be_null with row_condition
+  example_usage: end_date required when status is Closed.
+
+- rule_id: DQ-CONS-002
+  name: ReferentialIntegrity
+  dimension: Integrity
+  description: Ensures foreign key values exist in the referenced parent domain.
+  parameters:
+    reference_table: ''
+    reference_column: ''
+  applicability:
+    semantic_types:
+      - ForeignKey
+    data_types:
+      - string
+      - integer
+  severity: Fail
+  threshold: 100
+  implementations:
+    sql: '{column} NOT IN (SELECT {reference_column} FROM {reference_table})'
+    pandas: ~df['{column}'].isin(reference_df[reference_column])
+    great_expectations: expect_column_values_to_be_in_set
+  example_usage: foreign_key must map to existing parent IDs.
+
+- rule_id: DQ-ACCU-001
+  name: StatisticalOutlier
+  dimension: Accuracy
+  description: Flags values outside statistical baseline thresholds.
+  parameters:
+    zscore_threshold: 3
+  applicability:
+    semantic_types:
+      - MonetaryAmount
+      - Measurement
+    data_types:
+      - numeric
+      - float
+      - integer
+  severity: Warn
+  threshold: 98
+  implementations:
+    sql: ABS(({column} - AVG({column}) OVER ()) / NULLIF(STDDEV({column}) OVER (), 0)) > {zscore_threshold}
+    pandas: ((df['{column}'] - df['{column}'].mean()) / df['{column}'].std()).abs() > zscore_threshold
+    great_expectations: expect_column_mean_to_be_between
+  example_usage: Detect anomalous transaction amounts.
+
+- rule_id: DQ-TIME-001
+  name: DataFreshness
+  dimension: Timeliness
+  description: Verifies that latest update timestamps meet freshness SLA windows.
+  parameters:
+    max_delay_hours: 24
+  applicability:
+    semantic_types:
+      - LastUpdatedTimestamp
+    data_types:
+      - date
+      - datetime
+      - timestamp
+  severity: Warn
+  threshold: 100
+  implementations:
+    sql: '{column} < (CURRENT_TIMESTAMP - INTERVAL ''{max_delay_hours} hours'')'
+    pandas: df['{column}'] < (pd.Timestamp.utcnow() - pd.Timedelta(hours=max_delay_hours))
+    great_expectations: expect_column_max_to_be_between
+  example_usage: last_updated must be within past 24 hours.

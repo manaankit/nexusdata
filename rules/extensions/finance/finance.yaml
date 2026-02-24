@@ -1,0 +1,34 @@
+rules:
+  - rule_id: DQ-FIN-001
+    name: AmountPrecision
+    dimension: Accuracy
+    description: Monetary amounts have exact decimal places (e.g., 2 for USD).
+    extends: DQ-VAL-004
+    parameters:
+      column: ""
+      decimals: 2
+      currency: ""
+    applicability:
+      semantic_types: ["MonetaryAmount"]
+    implementations:
+      sql: "ABS({column} - ROUND({column}, {decimals})) > 0"
+    example_usage: "TransactionAmount → Fail if not 2 decimals."
+
+  - rule_id: DQ-FIN-002
+    name: GLAccountBalance
+    dimension: Consistency
+    description: Debits = Credits in ledger entries.
+    parameters:
+      group_by: "account_id"
+      debit_col: ""
+      credit_col: ""
+    implementations:
+      sql: "Aggregate sum check"
+
+  - rule_id: DQ-FIN-003
+    name: IBANValidation
+    dimension: Validity
+    description: IBAN format and checksum.
+    extends: DQ-VAL-002
+    parameters:
+      regex: "Specific IBAN pattern + modulo 97 check"

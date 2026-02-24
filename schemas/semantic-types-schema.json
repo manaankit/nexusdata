@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/semantic-types-schema.json",
+  "title": "Semantic Types Schema",
+  "type": "object",
+  "properties": {
+    "type_name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "default_rules": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^DQ-[A-Z]{4}-[0-9]{3}$"
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "type_name",
+    "description"
+  ]
+}

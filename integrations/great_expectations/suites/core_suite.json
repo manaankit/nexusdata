@@ -1,0 +1,133 @@
+{
+  "data_asset_type": null,
+  "expectation_suite_name": "core_data_quality_suite",
+  "expectations": [
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "customer_id",
+        "mostly": 1.0
+      },
+      "meta": {
+        "notes": "DQ-COMP-001: NotNullCheck for Identifier"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_match_regex",
+      "kwargs": {
+        "column": "email",
+        "regex": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+        "mostly": 0.995
+      },
+      "meta": {
+        "notes": "DQ-VAL-002: RegexPattern for EmailAddress"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_in_set",
+      "kwargs": {
+        "column": "country_code",
+        "value_set": [
+          "US",
+          "CA",
+          "GB",
+          "etc."
+        ],
+        "mostly": 1.0
+      },
+      "meta": {
+        "notes": "DQ-VAL-003: DomainListCheck"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "age",
+        "min_value": 18,
+        "max_value": 120,
+        "mostly": 1.0
+      },
+      "meta": {
+        "notes": "DQ-VAL-004: NumericRange"
+      }
+    },
+    {
+      "expectation_type": "expect_column_to_be_unique",
+      "kwargs": {
+        "column": "customer_id"
+      },
+      "meta": {
+        "notes": "DQ-UNIQ-001: ColumnUnique"
+      }
+    },
+    {
+      "expectation_type": "expect_compound_columns_to_be_unique",
+      "kwargs": {
+        "column_list": [
+          "order_id",
+          "line_item"
+        ]
+      },
+      "meta": {
+        "notes": "DQ-UNIQ-002: CompositeUnique"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "end_date",
+        "row_condition": "status == 'Closed'",
+        "condition_parser": "great_expectations__experimental__"
+      },
+      "meta": {
+        "notes": "DQ-CONS-001: CrossFieldConditional"
+      }
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_in_set",
+      "kwargs": {
+        "column": "foreign_key",
+        "value_set": {
+          "$PARAMETER": "urn:great_expectations:valid_values_from_reference_table"
+        }
+      },
+      "meta": {
+        "notes": "DQ-CONS-002: ReferentialIntegrity (use runtime parameters for reference)"
+      }
+    },
+    {
+      "expectation_type": "expect_column_mean_to_be_between",
+      "kwargs": {
+        "column": "amount",
+        "min_value": {
+          "$PARAMETER": "min_threshold"
+        },
+        "max_value": {
+          "$PARAMETER": "max_threshold"
+        }
+      },
+      "meta": {
+        "notes": "DQ-ACC-001: StatisticalOutlier (approx via mean)"
+      }
+    },
+    {
+      "expectation_type": "expect_column_max_to_be_between",
+      "kwargs": {
+        "column": "last_updated",
+        "min_value": {
+          "$PARAMETER": "now - 24h"
+        },
+        "max_value": {
+          "$PARAMETER": "now"
+        }
+      },
+      "meta": {
+        "notes": "DQ-TIME-001: DataFreshness"
+      }
+    }
+  ],
+  "ge_cloud_id": null,
+  "meta": {
+    "great_expectations_version": "0.18.0"
+  }
+}

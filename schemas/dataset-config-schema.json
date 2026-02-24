@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/dataset-config-schema.json",
+  "title": "Dataset Config Schema",
+  "type": "object",
+  "properties": {
+    "dataset": {
+      "type": "string"
+    },
+    "semantic_types": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rule_id": {
+            "type": "string"
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "semantic_type": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "Report",
+              "Warn",
+              "Fail",
+              "Quarantine"
+            ]
+          }
+        },
+        "required": [
+          "rule_id"
+        ]
+      }
+    }
+  },
+  "required": [
+    "dataset",
+    "rules"
+  ]
+}

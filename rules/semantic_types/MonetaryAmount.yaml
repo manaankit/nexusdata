@@ -1,0 +1,8 @@
+$schema: ../../schemas/semantic-types-schema.json
+type_name: MonetaryAmount
+description: Currency-denominated numeric amount requiring precision and range checks.
+default_rules:
+  - DQ-FINA-001
+parameters:
+  decimals: 2
+  currency: USD

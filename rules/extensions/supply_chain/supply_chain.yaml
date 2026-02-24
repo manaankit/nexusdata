@@ -1,0 +1,26 @@
+rules:
+  - rule_id: DQ-SC-001
+    name: SKUUniqueness
+    dimension: Uniqueness
+    description: Stock Keeping Units unique globally.
+    extends: DQ-UNIQ-001
+    applicability:
+      semantic_types: ["Identifier"]
+
+  - rule_id: DQ-SC-002
+    name: ShipmentTimeliness
+    dimension: Timeliness
+    description: Delivery date <= Promised date + buffer.
+    extends: DQ-TIME-001
+    parameters:
+      ship_date_col: ""
+      promise_date_col: ""
+      buffer_days: 2
+
+  - rule_id: DQ-SC-003
+    name: QuantityNonNegative
+    dimension: Validity
+    description: Inventory/shipment quantities >=0.
+    extends: DQ-VAL-004
+    parameters:
+      min: 0

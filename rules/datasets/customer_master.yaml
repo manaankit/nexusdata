@@ -1,0 +1,33 @@
+$schema: ../../schemas/dataset-config-schema.json
+dataset: customer_master
+semantic_types:
+  customer_id: Identifier
+  email: EmailAddress
+  country_code: CountryCode
+  age: PersonAge
+  last_updated: LastUpdatedTimestamp
+rules:
+  - rule_id: DQ-COMP-001
+    columns:
+      - customer_id
+    semantic_type: Identifier
+    action: Fail
+  - rule_id: DQ-VALD-002
+    columns:
+      - email
+    semantic_type: EmailAddress
+    params:
+      regex: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'
+    action: Warn
+  - rule_id: DQ-UNIQ-001
+    columns:
+      - customer_id
+    semantic_type: Identifier
+    action: Fail
+  - rule_id: DQ-TIME-001
+    columns:
+      - last_updated
+    semantic_type: LastUpdatedTimestamp
+    params:
+      max_delay_hours: 24
+    action: Warn

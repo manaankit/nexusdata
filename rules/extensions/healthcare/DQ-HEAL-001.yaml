@@ -1,0 +1,25 @@
+$schema: ../../../schemas/rule-schema.json
+rule_id: DQ-HEAL-001
+legacy_rule_id: DQ-HC-001
+name: ICDCodeValidity
+dimension: Validity
+description: Diagnosis codes must exist in the approved ICD-10/ICD-11 reference list.
+parameters:
+  extends: DQ-VAL-003
+  column: diagnosis_code
+  allowed_values_source: cms_icd_reference_table
+applicability:
+  semantic_types:
+    - DiagnosisCode
+  data_types:
+    - string
+  column_patterns:
+    - '.*icd.*'
+    - '.*diagnosis.*'
+severity: Fail
+threshold: 100
+implementations:
+  sql: '{column}' NOT IN (SELECT code FROM cms_icd_reference_table)
+  pandas: ~df['{column}'].isin(reference_codes)
+  great_expectations: expect_column_values_to_be_in_set
+example_usage: Fail records whose diagnosis codes are not in ICD registry.

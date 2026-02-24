@@ -1,0 +1,27 @@
+$schema: ../../../schemas/rule-schema.json
+rule_id: DQ-SUPC-002
+legacy_rule_id: DQ-SC-002
+name: ShipmentTimeliness
+dimension: Timeliness
+description: Delivery date must be on or before promised date plus configured buffer.
+parameters:
+  extends: DQ-TIME-001
+  ship_date_col: delivery_date
+  promise_date_col: promised_date
+  buffer_days: 2
+applicability:
+  semantic_types:
+    - ShipmentDate
+  data_types:
+    - date
+    - datetime
+  column_patterns:
+    - '.*delivery.*date.*'
+    - '.*promis.*date.*'
+severity: Warn
+threshold: 98
+implementations:
+  sql: {ship_date_col} > DATEADD(day, {buffer_days}, {promise_date_col})
+  pandas: df['{ship_date_col}'] > (df['{promise_date_col}'] + pd.Timedelta(days={buffer_days}))
+  great_expectations: custom expectation for date lag against promise date
+example_usage: Warn when actual delivery breaches promised SLA buffer window.

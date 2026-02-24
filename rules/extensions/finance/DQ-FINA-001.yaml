@@ -1,0 +1,27 @@
+$schema: ../../../schemas/rule-schema.json
+rule_id: DQ-FINA-001
+legacy_rule_id: DQ-FIN-001
+name: AmountPrecision
+dimension: Validity
+description: Monetary amounts must have exact decimal precision for the configured currency.
+parameters:
+  extends: DQ-VAL-004
+  column: TransactionAmount
+  decimals: 2
+  currency: USD
+applicability:
+  semantic_types:
+    - MonetaryAmount
+  data_types:
+    - decimal
+    - numeric
+    - float
+  column_patterns:
+    - '.*amount.*'
+severity: Fail
+threshold: 100
+implementations:
+  sql: ABS({column} - ROUND({column}, {decimals})) > 0
+  pandas: (df['{column}'] - df['{column}'].round({decimals})).abs() > 0
+  great_expectations: expect_column_values_to_be_between with decimal precision custom expectation
+example_usage: TransactionAmount fails if value has more than 2 decimal places.

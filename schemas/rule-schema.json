@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/rule-schema.json",
+  "title": "Data Quality Rule Schema",
+  "type": "object",
+  "properties": {
+    "rule_id": {
+      "type": "string",
+      "pattern": "^DQ-[A-Z]{4}-[0-9]{3}$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "dimension": {
+      "type": "string",
+      "enum": [
+        "Completeness",
+        "Validity",
+        "Uniqueness",
+        "Consistency",
+        "Accuracy",
+        "Timeliness",
+        "Integrity"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "parameters": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "applicability": {
+      "type": "object",
+      "properties": {
+        "semantic_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "data_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "column_patterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "Report",
+        "Warn",
+        "Fail",
+        "Quarantine"
+      ]
+    },
+    "threshold": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "implementations": {
+      "type": "object",
+      "properties": {
+        "sql": {
+          "type": "string"
+        },
+        "pandas": {
+          "type": "string"
+        },
+        "great_expectations": {
+          "type": "string"
+        }
+      }
+    },
+    "example_usage": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "rule_id",
+    "name",
+    "dimension",
+    "description"
+  ]
+}

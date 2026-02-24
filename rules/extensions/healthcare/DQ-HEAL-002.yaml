@@ -1,0 +1,28 @@
+$schema: ../../../schemas/rule-schema.json
+rule_id: DQ-HEAL-002
+legacy_rule_id: DQ-HC-002
+name: PatientAgeConsistency
+dimension: Consistency
+description: Recorded age must match DOB-derived age within a tolerance of one year.
+parameters:
+  extends: DQ-CONS-001
+  dob_col: date_of_birth
+  age_col: age
+  tolerance_years: 1
+applicability:
+  semantic_types:
+    - DateOfBirth
+    - PatientAge
+  data_types:
+    - date
+    - integer
+  column_patterns:
+    - '.*birth.*'
+    - '.*age.*'
+severity: Warn
+threshold: 99
+implementations:
+  sql: ABS(DATEDIFF(year, {dob_col}, CURRENT_DATE) - {age_col}) > {tolerance_years}
+  pandas: (abs(((today - df['{dob_col}']).dt.days / 365.25).round() - df['{age_col}']) > {tolerance_years})
+  great_expectations: custom cross-column expectation for DOB and age tolerance
+example_usage: Warn records where DOB-derived age differs by more than one year.

@@ -1,0 +1,32 @@
+$schema: ../../../schemas/rule-schema.json
+rule_id: DQ-FINA-002
+legacy_rule_id: DQ-FIN-002
+name: GLAccountBalance
+dimension: Consistency
+description: Total debits must equal total credits within each ledger grouping key.
+parameters:
+  group_by: account_id
+  debit_col: debit_amount
+  credit_col: credit_amount
+applicability:
+  semantic_types:
+    - LedgerEntry
+  data_types:
+    - decimal
+    - numeric
+  column_patterns:
+    - '.*debit.*'
+    - '.*credit.*'
+severity: Fail
+threshold: 100
+implementations:
+  sql: |
+    SELECT {group_by}
+    FROM source
+    GROUP BY {group_by}
+    HAVING ABS(SUM({debit_col}) - SUM({credit_col})) > 0
+  pandas: |
+    (df.groupby('{group_by}')['{debit_col}'].sum() -
+     df.groupby('{group_by}')['{credit_col}'].sum()).abs() > 0
+  great_expectations: use aggregate checkpoint for grouped debit/credit reconciliation
+example_usage: Validate that each account_id balances before publishing trial balance.
